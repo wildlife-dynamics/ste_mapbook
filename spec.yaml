@@ -983,6 +983,15 @@ workflow:
       argnames: trajectory_gdf 
       argvalues: ${{ workflow.split_traj_by_group.return }}
 
+  - name: Reproject etd to wgs84 
+    id: reproject_etd 
+    task: reproject_gdf 
+    partial: 
+      target_crs: EPSG:4326
+    mapvalues: 
+      argnames: gdf 
+      argvalues: ${{ workflow.generate_etd.return }}
+
   - name: Persist etd gdf
     id: persist_etd_gdf
     task: persist_df 
@@ -992,7 +1001,7 @@ workflow:
       filename: null
     mapvalues: 
       argnames: df
-      argvalues: ${{ workflow.generate_etd.return }}
+      argvalues: ${{ workflow.reproject_etd.return }}
 
   - name: Determine seasonal windows 
     id: determine_seasonal_windows 
@@ -1041,6 +1050,15 @@ workflow:
       argnames: gdf 
       argvalues: ${{ workflow.split_traj_by_group.return }}
   
+  - name: Reproject mcp gdf to wgs84 
+    id: reproject_mcp 
+    task: reproject_gdf 
+    partial: 
+      target_crs: EPSG:4326
+    mapvalues: 
+      argnames: gdf 
+      argvalues: ${{ workflow.generate_mcp.return }}
+
   - name: Persist mcp gdf
     id: persist_mcp_gdf
     task: persist_df 
@@ -1061,7 +1079,7 @@ workflow:
       colormap: RdYlGn
     mapvalues:
       argnames: df
-      argvalues: ${{ workflow.generate_etd.return }}
+      argvalues: ${{ workflow.reproject_etd.return }}
 
   - name: Exclude unnecessary columns from etd gdf  
     id: filter_etd_cols 
@@ -1115,7 +1133,7 @@ workflow:
         - geometry
     mapvalues:
       argnames: df
-      argvalues: ${{ workflow.generate_mcp.return }}
+      argvalues: ${{ workflow.reproject_mcp.return }}
 
   - name: Create mcp polygon layer 
     id: create_mcp_polygon_layer 
@@ -1257,6 +1275,15 @@ workflow:
       argnames: df
       argvalues: ${{ workflow.extract_speed_rasters.return }}
 
+  - name: Reproject mean speed raster features to wgs84 
+    id: reproject_speed_raster 
+    task: reproject_gdf 
+    partial: 
+      target_crs: EPSG:4326
+    mapvalues:
+      argnames: gdf 
+      argvalues: ${{ workflow.sort_speed_features_by_value.return }}
+
   - name: Apply classification to speed raster features 
     id: apply_classification_raster 
     task: apply_classification
@@ -1271,7 +1298,7 @@ workflow:
         label_decimals: 1
     mapvalues:
       argnames: df
-      argvalues: ${{ workflow.sort_speed_features_by_value.return }}
+      argvalues: ${{ workflow.reproject_speed_raster.return }}
     
   - name: Apply colormap to speed raster bins 
     id: apply_speed_raster_colormap 
@@ -1447,6 +1474,15 @@ workflow:
       argnames: df
       argvalues: ${{ workflow.convert_season_to_string.return }}
 
+  - name: Reproject seasonal home range gdf to wgs84 
+    id: reproject_seasonal_home_range 
+    task: reproject_gdf 
+    partial: 
+      target_crs: EPSG:4326
+    mapvalues: 
+      argnames: gdf 
+      argvalues: ${{ workflow.convert_season_to_string.return }}
+
   - name: Assign season colors to dataframe 
     id: assign_season_df
     task: assign_season_colors
@@ -1454,7 +1490,7 @@ workflow:
       seasons_column: season
     mapvalues:
       argnames: gdf
-      argvalues: ${{ workflow.convert_season_to_string.return }}
+      argvalues: ${{ workflow.reproject_seasonal_home_range.return }}
 
   - name: Exclude unnecessary columns from mean speed raster gdf
     id: filter_season_cols 

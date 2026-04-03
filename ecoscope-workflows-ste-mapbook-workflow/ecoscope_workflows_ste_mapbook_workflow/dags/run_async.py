@@ -56,6 +56,9 @@ from ecoscope_workflows_ext_custom.tasks.results import draw_map as draw_map
 from ecoscope_workflows_ext_custom.tasks.results import (
     set_base_maps_pydeck as set_base_maps_pydeck,
 )
+from ecoscope_workflows_ext_custom.tasks.spatial_ops import (
+    reproject_gdf as reproject_gdf,
+)
 from ecoscope_workflows_ext_custom.tasks.transformation import (
     filter_row_values as filter_row_values,
 )
@@ -280,7 +283,8 @@ def main(params: Params):
         "create_day_night_widgets": ["persist_day_night_html"],
         "merge_day_night_widgets": ["create_day_night_widgets"],
         "generate_etd": ["split_traj_by_group"],
-        "persist_etd_gdf": ["generate_etd"],
+        "reproject_etd": ["generate_etd"],
+        "persist_etd_gdf": ["reproject_etd"],
         "determine_seasonal_windows": [
             "gee_project_name",
             "time_range",
@@ -290,11 +294,12 @@ def main(params: Params):
         "zip_etd_with_traj": ["determine_seasonal_windows", "split_traj_by_group"],
         "add_season_labels": ["zip_etd_with_traj"],
         "generate_mcp": ["split_traj_by_group"],
+        "reproject_mcp": ["generate_mcp"],
         "persist_mcp_gdf": ["generate_mcp"],
-        "apply_etd_colormap": ["generate_etd"],
+        "apply_etd_colormap": ["reproject_etd"],
         "filter_etd_cols": ["apply_etd_colormap"],
         "generate_home_range_layers": ["filter_etd_cols"],
-        "filter_mcp_cols": ["generate_mcp"],
+        "filter_mcp_cols": ["reproject_mcp"],
         "create_mcp_polygon_layer": ["filter_mcp_cols"],
         "zip_home_range_with_mcp_layer": [
             "create_mcp_polygon_layer",
@@ -316,7 +321,8 @@ def main(params: Params):
         "generate_mean_speed_raster": ["split_traj_by_group"],
         "extract_speed_rasters": ["generate_mean_speed_raster"],
         "sort_speed_features_by_value": ["extract_speed_rasters"],
-        "apply_classification_raster": ["sort_speed_features_by_value"],
+        "reproject_speed_raster": ["sort_speed_features_by_value"],
+        "apply_classification_raster": ["reproject_speed_raster"],
         "apply_speed_raster_colormap": ["apply_classification_raster"],
         "format_speed_raster_labels": ["apply_speed_raster_colormap"],
         "filter_mean_speed_cols": ["format_speed_raster_labels"],
@@ -340,7 +346,8 @@ def main(params: Params):
         "seasonal_home_range": ["add_season_labels"],
         "convert_season_to_string": ["seasonal_home_range"],
         "persist_seasonal_etd_gdf": ["convert_season_to_string"],
-        "assign_season_df": ["convert_season_to_string"],
+        "reproject_seasonal_home_range": ["convert_season_to_string"],
+        "assign_season_df": ["reproject_seasonal_home_range"],
         "filter_season_cols": ["assign_season_df"],
         "generate_season_layers": ["filter_season_cols"],
         "combined_ldx_seasonal_hr_layers": [
@@ -2405,6 +2412,29 @@ def main(params: Params):
                 "argvalues": DependsOn("split_traj_by_group"),
             },
         ),
+        "reproject_etd": Node(
+            async_task=reproject_gdf.validate()
+            .set_task_instance_id("reproject_etd")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "target_crs": "EPSG:4326",
+            }
+            | (params_dict.get("reproject_etd") or {}),
+            method="mapvalues",
+            kwargs={
+                "argnames": ["gdf"],
+                "argvalues": DependsOn("generate_etd"),
+            },
+        ),
         "persist_etd_gdf": Node(
             async_task=persist_df.validate()
             .set_task_instance_id("persist_etd_gdf")
@@ -2427,7 +2457,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("generate_etd"),
+                "argvalues": DependsOn("reproject_etd"),
             },
         ),
         "determine_seasonal_windows": Node(
@@ -2544,6 +2574,29 @@ def main(params: Params):
                 "argvalues": DependsOn("split_traj_by_group"),
             },
         ),
+        "reproject_mcp": Node(
+            async_task=reproject_gdf.validate()
+            .set_task_instance_id("reproject_mcp")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "target_crs": "EPSG:4326",
+            }
+            | (params_dict.get("reproject_mcp") or {}),
+            method="mapvalues",
+            kwargs={
+                "argnames": ["gdf"],
+                "argvalues": DependsOn("generate_mcp"),
+            },
+        ),
         "persist_mcp_gdf": Node(
             async_task=persist_df.validate()
             .set_task_instance_id("persist_mcp_gdf")
@@ -2591,7 +2644,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("generate_etd"),
+                "argvalues": DependsOn("reproject_etd"),
             },
         ),
         "filter_etd_cols": Node(
@@ -2690,7 +2743,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("generate_mcp"),
+                "argvalues": DependsOn("reproject_mcp"),
             },
         ),
         "create_mcp_polygon_layer": Node(
@@ -2992,6 +3045,29 @@ def main(params: Params):
                 "argvalues": DependsOn("extract_speed_rasters"),
             },
         ),
+        "reproject_speed_raster": Node(
+            async_task=reproject_gdf.validate()
+            .set_task_instance_id("reproject_speed_raster")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "target_crs": "EPSG:4326",
+            }
+            | (params_dict.get("reproject_speed_raster") or {}),
+            method="mapvalues",
+            kwargs={
+                "argnames": ["gdf"],
+                "argvalues": DependsOn("sort_speed_features_by_value"),
+            },
+        ),
         "apply_classification_raster": Node(
             async_task=apply_classification.validate()
             .set_task_instance_id("apply_classification_raster")
@@ -3021,7 +3097,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["df"],
-                "argvalues": DependsOn("sort_speed_features_by_value"),
+                "argvalues": DependsOn("reproject_speed_raster"),
             },
         ),
         "apply_speed_raster_colormap": Node(
@@ -3379,6 +3455,29 @@ def main(params: Params):
                 "argvalues": DependsOn("convert_season_to_string"),
             },
         ),
+        "reproject_seasonal_home_range": Node(
+            async_task=reproject_gdf.validate()
+            .set_task_instance_id("reproject_seasonal_home_range")
+            .handle_errors()
+            .with_tracing()
+            .skipif(
+                conditions=[
+                    any_is_empty_df,
+                    any_dependency_skipped,
+                ],
+                unpack_depth=1,
+            )
+            .set_executor("lithops"),
+            partial={
+                "target_crs": "EPSG:4326",
+            }
+            | (params_dict.get("reproject_seasonal_home_range") or {}),
+            method="mapvalues",
+            kwargs={
+                "argnames": ["gdf"],
+                "argvalues": DependsOn("convert_season_to_string"),
+            },
+        ),
         "assign_season_df": Node(
             async_task=assign_season_colors.validate()
             .set_task_instance_id("assign_season_df")
@@ -3399,7 +3498,7 @@ def main(params: Params):
             method="mapvalues",
             kwargs={
                 "argnames": ["gdf"],
-                "argvalues": DependsOn("convert_season_to_string"),
+                "argvalues": DependsOn("reproject_seasonal_home_range"),
             },
         ),
         "filter_season_cols": Node(
