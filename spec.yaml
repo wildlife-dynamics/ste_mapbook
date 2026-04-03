@@ -1275,6 +1275,15 @@ workflow:
       argnames: df
       argvalues: ${{ workflow.extract_speed_rasters.return }}
 
+  - name: Reproject mean speed raster features to wgs84 
+    id: reproject_speed_raster 
+    task: reproject_gdf 
+    partial: 
+      target_crs: EPSG:4326
+    mapvalues:
+      argnames: gdf 
+      argvalues: ${{ workflow.sort_speed_features_by_value.return }}
+
   - name: Apply classification to speed raster features 
     id: apply_classification_raster 
     task: apply_classification
@@ -1289,7 +1298,7 @@ workflow:
         label_decimals: 1
     mapvalues:
       argnames: df
-      argvalues: ${{ workflow.sort_speed_features_by_value.return }}
+      argvalues: ${{ workflow.reproject_speed_raster.return }}
     
   - name: Apply colormap to speed raster bins 
     id: apply_speed_raster_colormap 
@@ -1465,6 +1474,15 @@ workflow:
       argnames: df
       argvalues: ${{ workflow.convert_season_to_string.return }}
 
+  - name: Reproject seasonal home range gdf to wgs84 
+    id: reproject_seasonal_home_range 
+    task: reproject_gdf 
+    partial: 
+      target_crs: EPSG:4326
+    mapvalues: 
+      argnames: gdf 
+      argvalues: ${{ workflow.convert_season_to_string.return }}
+
   - name: Assign season colors to dataframe 
     id: assign_season_df
     task: assign_season_colors
@@ -1472,7 +1490,7 @@ workflow:
       seasons_column: season
     mapvalues:
       argnames: gdf
-      argvalues: ${{ workflow.convert_season_to_string.return }}
+      argvalues: ${{ workflow.reproject_seasonal_home_range.return }}
 
   - name: Exclude unnecessary columns from mean speed raster gdf
     id: filter_season_cols 

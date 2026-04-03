@@ -2408,6 +2408,24 @@ def main(params: Params):
         .mapvalues(argnames=["df"], argvalues=extract_speed_rasters)
     )
 
+    reproject_speed_raster = (
+        reproject_gdf.validate()
+        .set_task_instance_id("reproject_speed_raster")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            target_crs="EPSG:4326", **(params_dict.get("reproject_speed_raster") or {})
+        )
+        .mapvalues(argnames=["gdf"], argvalues=sort_speed_features_by_value)
+    )
+
     apply_classification_raster = (
         apply_classification.validate()
         .set_task_instance_id("apply_classification_raster")
@@ -2427,7 +2445,7 @@ def main(params: Params):
             label_options={"label_range": False, "label_decimals": 1},
             **(params_dict.get("apply_classification_raster") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=sort_speed_features_by_value)
+        .mapvalues(argnames=["df"], argvalues=reproject_speed_raster)
     )
 
     apply_speed_raster_colormap = (
@@ -2721,6 +2739,25 @@ def main(params: Params):
         .mapvalues(argnames=["df"], argvalues=convert_season_to_string)
     )
 
+    reproject_seasonal_home_range = (
+        reproject_gdf.validate()
+        .set_task_instance_id("reproject_seasonal_home_range")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(
+            target_crs="EPSG:4326",
+            **(params_dict.get("reproject_seasonal_home_range") or {}),
+        )
+        .mapvalues(argnames=["gdf"], argvalues=convert_season_to_string)
+    )
+
     assign_season_df = (
         assign_season_colors.validate()
         .set_task_instance_id("assign_season_df")
@@ -2734,7 +2771,7 @@ def main(params: Params):
             unpack_depth=1,
         )
         .partial(seasons_column="season", **(params_dict.get("assign_season_df") or {}))
-        .mapvalues(argnames=["gdf"], argvalues=convert_season_to_string)
+        .mapvalues(argnames=["gdf"], argvalues=reproject_seasonal_home_range)
     )
 
     filter_season_cols = (

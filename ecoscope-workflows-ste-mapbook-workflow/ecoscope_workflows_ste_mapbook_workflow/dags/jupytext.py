@@ -3624,6 +3624,34 @@ sort_speed_features_by_value = (
 
 
 # %% [markdown]
+# ## Reproject mean speed raster features to wgs84
+
+# %%
+# parameters
+
+reproject_speed_raster_params = dict()
+
+# %%
+# call the task
+
+
+reproject_speed_raster = (
+    reproject_gdf.set_task_instance_id("reproject_speed_raster")
+    .handle_errors()
+    .with_tracing()
+    .skipif(
+        conditions=[
+            any_is_empty_df,
+            any_dependency_skipped,
+        ],
+        unpack_depth=1,
+    )
+    .partial(target_crs="EPSG:4326", **reproject_speed_raster_params)
+    .mapvalues(argnames=["gdf"], argvalues=sort_speed_features_by_value)
+)
+
+
+# %% [markdown]
 # ## Apply classification to speed raster features
 
 # %%
@@ -3653,7 +3681,7 @@ apply_classification_raster = (
         label_options={"label_range": False, "label_decimals": 1},
         **apply_classification_raster_params,
     )
-    .mapvalues(argnames=["df"], argvalues=sort_speed_features_by_value)
+    .mapvalues(argnames=["df"], argvalues=reproject_speed_raster)
 )
 
 
@@ -4104,6 +4132,34 @@ persist_seasonal_etd_gdf = (
 
 
 # %% [markdown]
+# ## Reproject seasonal home range gdf to wgs84
+
+# %%
+# parameters
+
+reproject_seasonal_home_range_params = dict()
+
+# %%
+# call the task
+
+
+reproject_seasonal_home_range = (
+    reproject_gdf.set_task_instance_id("reproject_seasonal_home_range")
+    .handle_errors()
+    .with_tracing()
+    .skipif(
+        conditions=[
+            any_is_empty_df,
+            any_dependency_skipped,
+        ],
+        unpack_depth=1,
+    )
+    .partial(target_crs="EPSG:4326", **reproject_seasonal_home_range_params)
+    .mapvalues(argnames=["gdf"], argvalues=convert_season_to_string)
+)
+
+
+# %% [markdown]
 # ## Assign season colors to dataframe
 
 # %%
@@ -4127,7 +4183,7 @@ assign_season_df = (
         unpack_depth=1,
     )
     .partial(seasons_column="season", **assign_season_df_params)
-    .mapvalues(argnames=["gdf"], argvalues=convert_season_to_string)
+    .mapvalues(argnames=["gdf"], argvalues=reproject_seasonal_home_range)
 )
 
 
