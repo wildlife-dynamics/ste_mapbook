@@ -105,6 +105,9 @@ from ecoscope_workflows_ext_custom.tasks.results import (
     create_path_layer as create_path_layer,
 )
 from ecoscope_workflows_ext_custom.tasks.results import draw_map as draw_map
+from ecoscope_workflows_ext_custom.tasks.spatial_ops import (
+    reproject_gdf as reproject_gdf,
+)
 from ecoscope_workflows_ext_custom.tasks.transformation import (
     to_quantity as to_quantity,
 )
@@ -1916,6 +1919,22 @@ def main(params: Params):
         .mapvalues(argnames=["trajectory_gdf"], argvalues=split_traj_by_group)
     )
 
+    reproject_etd = (
+        reproject_gdf.validate()
+        .set_task_instance_id("reproject_etd")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(target_crs="EPSG:4326", **(params_dict.get("reproject_etd") or {}))
+        .mapvalues(argnames=["gdf"], argvalues=generate_etd)
+    )
+
     persist_etd_gdf = (
         persist_df.validate()
         .set_task_instance_id("persist_etd_gdf")
@@ -1934,7 +1953,7 @@ def main(params: Params):
             filename=None,
             **(params_dict.get("persist_etd_gdf") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=generate_etd)
+        .mapvalues(argnames=["df"], argvalues=reproject_etd)
     )
 
     determine_seasonal_windows = (
@@ -2029,6 +2048,22 @@ def main(params: Params):
         .mapvalues(argnames=["gdf"], argvalues=split_traj_by_group)
     )
 
+    reproject_mcp = (
+        reproject_gdf.validate()
+        .set_task_instance_id("reproject_mcp")
+        .handle_errors()
+        .with_tracing()
+        .skipif(
+            conditions=[
+                any_is_empty_df,
+                any_dependency_skipped,
+            ],
+            unpack_depth=1,
+        )
+        .partial(target_crs="EPSG:4326", **(params_dict.get("reproject_mcp") or {}))
+        .mapvalues(argnames=["gdf"], argvalues=generate_mcp)
+    )
+
     persist_mcp_gdf = (
         persist_df.validate()
         .set_task_instance_id("persist_mcp_gdf")
@@ -2068,7 +2103,7 @@ def main(params: Params):
             colormap="RdYlGn",
             **(params_dict.get("apply_etd_colormap") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=generate_etd)
+        .mapvalues(argnames=["df"], argvalues=reproject_etd)
     )
 
     filter_etd_cols = (
@@ -2147,7 +2182,7 @@ def main(params: Params):
             columns=["area_km2", "geometry"],
             **(params_dict.get("filter_mcp_cols") or {}),
         )
-        .mapvalues(argnames=["df"], argvalues=generate_mcp)
+        .mapvalues(argnames=["df"], argvalues=reproject_mcp)
     )
 
     create_mcp_polygon_layer = (

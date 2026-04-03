@@ -65,6 +65,9 @@ from ecoscope_workflows_ext_custom.tasks.results import draw_map as draw_map
 from ecoscope_workflows_ext_custom.tasks.results import (
     set_base_maps_pydeck as set_base_maps_pydeck,
 )
+from ecoscope_workflows_ext_custom.tasks.spatial_ops import (
+    reproject_gdf as reproject_gdf,
+)
 from ecoscope_workflows_ext_custom.tasks.transformation import (
     filter_row_values as filter_row_values,
 )
@@ -2831,6 +2834,34 @@ generate_etd = (
 
 
 # %% [markdown]
+# ## Reproject etd to wgs84
+
+# %%
+# parameters
+
+reproject_etd_params = dict()
+
+# %%
+# call the task
+
+
+reproject_etd = (
+    reproject_gdf.set_task_instance_id("reproject_etd")
+    .handle_errors()
+    .with_tracing()
+    .skipif(
+        conditions=[
+            any_is_empty_df,
+            any_dependency_skipped,
+        ],
+        unpack_depth=1,
+    )
+    .partial(target_crs="EPSG:4326", **reproject_etd_params)
+    .mapvalues(argnames=["gdf"], argvalues=generate_etd)
+)
+
+
+# %% [markdown]
 # ## Persist etd gdf
 
 # %%
@@ -2859,7 +2890,7 @@ persist_etd_gdf = (
         filename=None,
         **persist_etd_gdf_params,
     )
-    .mapvalues(argnames=["df"], argvalues=generate_etd)
+    .mapvalues(argnames=["df"], argvalues=reproject_etd)
 )
 
 
@@ -3016,6 +3047,34 @@ generate_mcp = (
 
 
 # %% [markdown]
+# ## Reproject mcp gdf to wgs84
+
+# %%
+# parameters
+
+reproject_mcp_params = dict()
+
+# %%
+# call the task
+
+
+reproject_mcp = (
+    reproject_gdf.set_task_instance_id("reproject_mcp")
+    .handle_errors()
+    .with_tracing()
+    .skipif(
+        conditions=[
+            any_is_empty_df,
+            any_dependency_skipped,
+        ],
+        unpack_depth=1,
+    )
+    .partial(target_crs="EPSG:4326", **reproject_mcp_params)
+    .mapvalues(argnames=["gdf"], argvalues=generate_mcp)
+)
+
+
+# %% [markdown]
 # ## Persist mcp gdf
 
 # %%
@@ -3077,7 +3136,7 @@ apply_etd_colormap = (
         colormap="RdYlGn",
         **apply_etd_colormap_params,
     )
-    .mapvalues(argnames=["df"], argvalues=generate_etd)
+    .mapvalues(argnames=["df"], argvalues=reproject_etd)
 )
 
 
@@ -3189,7 +3248,7 @@ filter_mcp_cols = (
         unpack_depth=1,
     )
     .partial(columns=["area_km2", "geometry"], **filter_mcp_cols_params)
-    .mapvalues(argnames=["df"], argvalues=generate_mcp)
+    .mapvalues(argnames=["df"], argvalues=reproject_mcp)
 )
 
 
