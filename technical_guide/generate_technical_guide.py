@@ -207,20 +207,32 @@ def build():
             "<code>set_gee_connection</code>."
         ),
 
-        sp(4), h2("2.4 landDx Geodatabase"),
+        sp(4), h2("2.4 Map Overlay"),
         p(
-            "All six maps share a common base of protected-area polygons sourced from the "
-            "<b>landDx</b> geodatabase (<code>landDx.gpkg</code>). By default, the file is "
-            "downloaded automatically from a Dropbox URL. Users may also supply a local path."
+            "All six maps share a common overlay layer configured through the "
+            "<b>Map Overlay</b> task-group (<code>select_map_overlay</code>). "
+            "Two overlay sources are available:"
         ),
-        p("The database is filtered to include only three land-use categories:"),
+        bullet(
+            "<b>LandDx</b> — standard protected-area polygons (community conservancies, "
+            "national reserves, national parks) downloaded automatically from a Dropbox URL. "
+            "No local copy is required; the URL is pre-configured by default."
+        ),
+        bullet(
+            "<b>EarthRanger Spatial Feature</b> — fetches a named spatial feature set "
+            "directly from the connected EarthRanger instance, allowing site-specific "
+            "boundary layers to be used as the overlay."
+        ),
+        p(
+            "When the <b>LandDx</b> option is selected, the geodatabase is filtered to "
+            "three land-use categories:"
+        ),
         bullet("Community Conservancy"),
         bullet("National Reserve"),
         bullet("National Park"),
         p(
-            "Only three columns are retained after loading: <code>type</code>, "
-            "<code>name</code>, and <code>geometry</code>. The layer is then split by "
-            "<code>type</code> and each category is styled independently:"
+            "Only three columns are retained: <code>type</code>, <code>name</code>, "
+            "and <code>geometry</code>. Each category is then styled independently:"
         ),
         table(
             [
@@ -234,6 +246,11 @@ def build():
         p(
             "A text label layer (centroid-anchored, Arial, 1 000 m base size, "
             "40–75 px clamp) shows protected-area names at appropriate zoom levels."
+        ),
+        note(
+            "The Map Overlay task uses <code>skipif: never</code>, so it always runs "
+            "regardless of whether upstream data is empty. This ensures the overlay is "
+            "consistently applied to all six map products."
         ),
 
         sp(4), h2("2.5 Base Map Tile Layer"),
@@ -784,9 +801,9 @@ def build():
                 ["Package",                          "Version",   "Role"],
                 ["ecoscope-workflows-core",          "0.22.17.*", "Core task library and workflow engine"],
                 ["ecoscope-workflows-ext-ecoscope",  "0.22.17.*", "Ecoscope spatial analysis tasks (ETD, MCP, relocations)"],
-                ["ecoscope-workflows-ext-custom",    "0.0.39.*",  "Custom STE utility tasks"],
+                ["ecoscope-workflows-ext-custom",    "0.0.56.*",  "Custom STE utility tasks"],
                 ["ecoscope-workflows-ext-big-life",  "0.0.8.*",   "Big Life Foundation domain tasks"],
-                ["ecoscope-workflows-ext-ste",       "0.0.18.*",  "STE-specific tasks (mapbook, seasonal analysis)"],
+                ["ecoscope-workflows-ext-ste",       "0.0.22.*",  "STE-specific tasks (mapbook, seasonal analysis, map overlay)"],
             ],
             [5.5*cm, 3*cm, 8*cm],
         ),
