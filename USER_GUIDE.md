@@ -91,20 +91,30 @@ Select a **previous period** to use as a comparison baseline on the Movement Tra
 
 ---
 
-### Step 6 — Select Subject Group and Load landDx Database
+### Step 6 — Select Subject Group
 
 Enter the **Subject Group Name** exactly as it appears in EarthRanger (case-sensitive). The default value is `Elephants`.
 
-For the **landDx geodatabase**, which contains protected area boundaries used as base layers on all maps:
-
-- If you do not have the database stored locally, a **Dropbox download URL is provided by default** — no action is needed.
-- If you have a local copy, you can supply the path to your `.gpkg` file instead.
-
-![Subject Group and landDx Database](data/screenshots/subject_group_landdx.png)
+![Subject Group](data/screenshots/subject_group_landdx.png)
 
 ---
 
-### Step 7 — Configure Trajectory Segment Filter
+### Step 7 — Configure Map Overlay
+
+Choose the overlay layer to display on all maps. Two options are available:
+
+| Option | Description |
+|--------|-------------|
+| **LandDx** | Standard protected area boundaries (community conservancies, national reserves, national parks) downloaded automatically from the provided Dropbox URL — no local copy required |
+| **EarthRanger Spatial Feature** | Fetches a named spatial feature set directly from your connected EarthRanger instance |
+
+By default, the **LandDx** option is pre-selected and the download URL is filled in — no action is required unless you want to use an EarthRanger spatial feature instead.
+
+![Map Overlay](data/screenshots/map_overlay.png)
+
+---
+
+### Step 8 — Configure Trajectory Segment Filter
 
 These filters remove GPS noise and unrealistic movements before trajectory analysis. The same filter is applied to both the current and previous period trajectories.
 
@@ -123,7 +133,7 @@ Adjust these values to suit the movement characteristics of your study species.
 
 ---
 
-### Step 8 — Zoom to GDF Extent and Report Logo
+### Step 9 — Zoom to GDF Extent and Report Logo
 
 **Zoom to GDF Extent**
 
