@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STE Mapbook Workflow</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="bar">
+      <a class="brand" href="index.html">STE Mapbook Workflow</a>
+      <nav>
+        <a href="index.html" class="active">Overview</a>
+        <a href="user-guide.html">User Guide</a>
+        <a href="technical-guide.html">Technical Guide</a>
+        <a href="troubleshooting.html">Troubleshooting</a>
+        <a href="https://github.com/wildlife-dynamics/ste-mapbook">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>STE Mapbook Workflow</h1>
+    <p class="lede">Generates a multi-section mapbook report for wildlife tracking data sourced from EarthRanger. For each subject, the workflow produces six map visualizations, a Word document report, and an interactive dashboard.</p>
+
+    <div class="card-grid">
+      <a class="card" href="user-guide.html">
+        <h3>User Guide</h3>
+        <p>Step-by-step instructions for configuring and running the workflow, with screenshots.</p>
+      </a>
+      <a class="card" href="technical-guide.html">
+        <h3>Technical Guide</h3>
+        <p>Deeper look at the workflow's internals — pipeline stages, data sources, and outputs.</p>
+      </a>
+      <a class="card" href="troubleshooting.html">
+        <h3>Troubleshooting</h3>
+        <p>Common errors you may hit while configuring or running the workflow, and how to resolve them.</p>
+      </a>
+    </div>
+
+    <h2>What it produces</h2>
+    <table>
+      <thead><tr><th>Output</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Movement Tracks map</strong></td><td>Current vs. previous period tracks, color-coded by period</td></tr>
+        <tr><td><strong>Speed Map</strong></td><td>Trajectories colored by speed bins (km/h)</td></tr>
+        <tr><td><strong>Day/Night Map</strong></td><td>Trajectories colored by day (orange) or night (dark blue)</td></tr>
+        <tr><td><strong>Home Range map</strong></td><td>Elliptical Time Density (ETD) contours + Minimum Convex Polygon (MCP)</td></tr>
+        <tr><td><strong>Mean Speed Raster</strong></td><td>Hexagonal raster of mean movement speed</td></tr>
+        <tr><td><strong>Seasonal Home Range</strong></td><td>ETD contours split by wet/dry season</td></tr>
+        <tr><td><strong>Mapbook (.docx)</strong></td><td>Word document with a cover page and one section per subject</td></tr>
+        <tr><td><strong>Dashboard</strong></td><td>Interactive widget dashboard with all maps and summary metrics</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Requirements</h2>
+    <ul>
+      <li>Access to an <strong>EarthRanger</strong> instance with a configured data source</li>
+      <li>Access to a <strong>Google Earth Engine</strong> project</li>
+      <li>The <code>landDx</code> geodatabase (downloaded automatically from Dropbox by default)</li>
+    </ul>
+
+    <h2>Get started</h2>
+    <p>New to the workflow? Start with the <a href="user-guide.html">User Guide</a> for a walkthrough of adding the template, configuring connections, and setting parameters. Running into an error? Check <a href="troubleshooting.html">Troubleshooting</a> first.</p>
+  </main>
+
+  <footer class="site-footer">
+    <p>STE Mapbook Workflow &middot; <a href="https://github.com/wildlife-dynamics/ste-mapbook">wildlife-dynamics/ste-mapbook</a> on GitHub</p>
+  </footer>
+</body>
+</html>

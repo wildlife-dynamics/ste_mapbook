@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Technical Guide — STE Mapbook Workflow</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="bar">
+      <a class="brand" href="index.html">STE Mapbook Workflow</a>
+      <nav>
+        <a href="index.html">Overview</a>
+        <a href="user-guide.html">User Guide</a>
+        <a href="technical-guide.html" class="active">Technical Guide</a>
+        <a href="troubleshooting.html">Troubleshooting</a>
+        <a href="https://github.com/wildlife-dynamics/ste-mapbook">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>Technical Guide</h1>
+    <p class="lede">A deeper look at how the STE Mapbook Workflow is built: the data ingestion pipeline, the methodology behind each map output, and how the final mapbook and dashboard are assembled.</p>
+
+    <p>
+      <a href="assets/ste_mapbook_technical_guide.pdf">Download the full Technical Guide (PDF)</a>
+    </p>
+
+    <h2>Contents</h2>
+    <ol>
+      <li>Overview</li>
+      <li>Dependencies &amp; Prerequisites
+        <ol type="a">
+          <li>EarthRanger Connection</li>
+          <li>Subject Group</li>
+          <li>Google Earth Engine Project</li>
+          <li>Map Overlay</li>
+          <li>Base Map Tile Layer</li>
+        </ol>
+      </li>
+      <li>Data Ingestion Pipeline
+        <ol type="a">
+          <li>Observations &rarr; Relocations</li>
+          <li>Day / Night Annotation</li>
+          <li>Trajectory Segment Filter</li>
+          <li>Relocations &rarr; Trajectories</li>
+        </ol>
+      </li>
+      <li>Map Outputs &mdash; Methodology
+        <ol type="a">
+          <li>Movement Tracks Map</li>
+          <li>Speed Map</li>
+          <li>Day / Night Map</li>
+          <li>Home Range Map (ETD + MCP)</li>
+          <li>Mean Speed Raster</li>
+          <li>Seasonal Home Range Map</li>
+        </ol>
+      </li>
+      <li>Summary Metrics</li>
+      <li>Mapbook Report (.docx)
+        <ol type="a">
+          <li>Cover Page</li>
+          <li>Per-Subject Section</li>
+          <li>Document Merge</li>
+        </ol>
+      </li>
+      <li>Interactive Dashboard</li>
+      <li>Output Files</li>
+      <li>Workflow Execution Logic
+        <ol type="a">
+          <li>Grouping Strategy</li>
+          <li>Skip Conditions</li>
+          <li>Previous Period Logic</li>
+        </ol>
+      </li>
+      <li>Software Versions</li>
+    </ol>
+
+    <h2>Read it here</h2>
+    <p>The guide is embedded below. If it doesn't render in your browser, use the download link above.</p>
+    <embed src="assets/ste_mapbook_technical_guide.pdf" type="application/pdf" width="100%" height="900px" style="border: 1px solid #d8e8d8; border-radius: 6px;" />
+  </main>
+
+  <footer class="site-footer">
+    <p>STE Mapbook Workflow &middot; <a href="https://github.com/wildlife-dynamics/ste-mapbook">wildlife-dynamics/ste-mapbook</a> on GitHub</p>
+  </footer>
+</body>
+</html>

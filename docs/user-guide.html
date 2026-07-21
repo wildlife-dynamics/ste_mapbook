@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Guide — STE Mapbook Workflow</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="bar">
+      <a class="brand" href="index.html">STE Mapbook Workflow</a>
+      <nav>
+        <a href="index.html">Overview</a>
+        <a href="user-guide.html" class="active">User Guide</a>
+        <a href="technical-guide.html">Technical Guide</a>
+        <a href="troubleshooting.html">Troubleshooting</a>
+        <a href="https://github.com/wildlife-dynamics/ste-mapbook">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>STE Mapbook Workflow &mdash; User Guide</h1>
+    <p class="lede">This guide walks you through configuring and running the STE Mapbook Workflow, which generates a multi-section mapbook report for wildlife tracking data sourced from EarthRanger and Google Earth Engine.</p>
+
+    <h2>Overview</h2>
+    <p>The workflow produces, for each tracked subject:</p>
+    <ul>
+      <li>Six interactive map visualizations (movement tracks, speed, day/night, home range, mean speed raster, seasonal home range)</li>
+      <li>A Word document mapbook (<code>.docx</code>) with a cover page and one section per subject</li>
+      <li>An interactive widget dashboard</li>
+    </ul>
+
+    <h2>Prerequisites</h2>
+    <ul>
+      <li>Access to an <strong>EarthRanger</strong> instance with a configured data source</li>
+      <li>Access to a <strong>Google Earth Engine</strong> project</li>
+      <li>The <code>landDx</code> geodatabase (downloaded automatically from Dropbox by default &mdash; no local copy required)</li>
+    </ul>
+
+    <h2>Step-by-Step Configuration</h2>
+
+    <h3 id="step-1">Step 1 &mdash; Add the Workflow Template</h3>
+    <p>In the workflow runner, add a new template using the following GitHub repository URL:</p>
+    <pre><code>https://github.com/wildlife-dynamics/ste_mapbook.git</code></pre>
+    <img src="assets/screenshots/add_template.png" alt="Add Template" />
+
+    <h3 id="step-2">Step 2 &mdash; Select the Template</h3>
+    <p>After adding the template, select it from the available templates list to load the STE Mapbook workflow.</p>
+    <img src="assets/screenshots/select_template.png" alt="Select Template" />
+
+    <h3 id="step-3">Step 3 &mdash; Configure Connections</h3>
+    <p>Both an <strong>EarthRanger</strong> connection and a <strong>Google Earth Engine</strong> connection are required for the workflow to run. Configure these before proceeding to the workflow parameters.</p>
+    <img src="assets/screenshots/configure_connection.png" alt="Configure Connection" />
+
+    <h4>Configure EarthRanger Connection</h4>
+    <p>Enter your EarthRanger server URL and authentication credentials to establish the EarthRanger data connection.</p>
+    <img src="assets/screenshots/er_connection.png" alt="EarthRanger Connection" />
+
+    <h4>Configure Google Earth Engine Connection</h4>
+    <p>Enter your Google Earth Engine project name to establish the GEE connection used for seasonal analysis.</p>
+    <img src="assets/screenshots/gee_connection.png" alt="Earth Engine Connection" />
+
+    <h3 id="step-4">Step 4 &mdash; Set the Workflow Time Range</h3>
+    <p>Define the analysis period by setting the <strong>Since</strong> (start) and <strong>Until</strong> (end) dates. All movement data, trajectories, and home ranges will be computed within this window.</p>
+    <img src="assets/screenshots/workflow_time_config.png" alt="Workflow Time Configuration" />
+
+    <h3 id="step-5">Step 5 &mdash; Set the Previous Period and Connection</h3>
+    <p>Select a <strong>previous period</strong> to use as a comparison baseline on the Movement Tracks map, and confirm the active data connections.</p>
+    <table>
+      <thead><tr><th>Option</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Same as current period</td><td>Mirrors the current period length, ending at the current start date</td></tr>
+        <tr><td>Previous month</td><td>Calendar month before the current period</td></tr>
+        <tr><td>Previous 3 months</td><td>Three calendar months before the current period</td></tr>
+        <tr><td>Previous 6 months</td><td>Six calendar months before the current period</td></tr>
+        <tr><td>Previous year</td><td>One calendar year before the current period</td></tr>
+        <tr><td>Enter start date</td><td>Manually specify a start date for the previous period</td></tr>
+      </tbody>
+    </table>
+    <img src="assets/screenshots/previous_period_and_connection.png" alt="Previous Period and Connection" />
+
+    <h3 id="step-6">Step 6 &mdash; Select Subject Group</h3>
+    <p>Enter the <strong>Subject Group Name</strong> exactly as it appears in EarthRanger (case-sensitive). The default value is <code>Elephants</code>.</p>
+    <img src="assets/screenshots/subject_group_landdx.png" alt="Subject Group" />
+
+    <h3 id="step-7">Step 7 &mdash; Configure Map Overlay</h3>
+    <p>Choose the overlay layer to display on all maps. Two options are available:</p>
+    <table>
+      <thead><tr><th>Option</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>LandDx</strong></td><td>Standard protected area boundaries (community conservancies, national reserves, national parks) downloaded automatically from the provided Dropbox URL &mdash; no local copy required</td></tr>
+        <tr><td><strong>EarthRanger Spatial Feature</strong></td><td>Fetches a named spatial feature set directly from your connected EarthRanger instance</td></tr>
+      </tbody>
+    </table>
+    <p>By default, the <strong>LandDx</strong> option is pre-selected and the download URL is filled in &mdash; no action is required unless you want to use an EarthRanger spatial feature instead.</p>
+
+    <h3 id="step-8">Step 8 &mdash; Configure Trajectory Segment Filter</h3>
+    <p>These filters remove GPS noise and unrealistic movements before trajectory analysis. The same filter is applied to both the current and previous period trajectories.</p>
+    <table>
+      <thead><tr><th>Field</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Minimum Segment Length (m)</td><td><code>0.001</code></td><td>Discard segments shorter than this distance</td></tr>
+        <tr><td>Maximum Segment Length (m)</td><td><code>5000</code></td><td>Discard segments longer than this distance</td></tr>
+        <tr><td>Minimum Segment Duration (s)</td><td><code>1</code></td><td>Discard segments shorter than this duration</td></tr>
+        <tr><td>Maximum Segment Duration (s)</td><td><code>21600</code></td><td>Discard segments longer than this duration (6 hours)</td></tr>
+        <tr><td>Minimum Speed (km/h)</td><td><code>0.01</code></td><td>Discard segments below this average speed</td></tr>
+        <tr><td>Maximum Speed (km/h)</td><td><code>9</code></td><td>Discard segments above this average speed</td></tr>
+      </tbody>
+    </table>
+    <p>Adjust these values to suit the movement characteristics of your study species.</p>
+    <img src="assets/screenshots/configure_trajectory_filter.png" alt="Configure Trajectory Segment Filter" />
+
+    <h3 id="step-9">Step 9 &mdash; Zoom to GDF Extent and Report Logo</h3>
+    <p><strong>Zoom to GDF Extent</strong></p>
+    <p>Set the <strong>Expansion Factor</strong> to control the map padding around the data boundary. A value of <code>1.0</code> gives a tight fit; <code>1.05</code> (default) adds 5% padding; <code>1.2</code> adds 20% padding.</p>
+    <p><strong>Report Logo</strong></p>
+    <p>The logo appears on the mapbook cover page. You can either:</p>
+    <ul>
+      <li>Provide a <strong>URL</strong> to a PNG or JPG image to download it automatically.</li>
+      <li>Provide a <strong>local file path</strong> to an image on your machine.</li>
+    </ul>
+    <img src="assets/screenshots/zoom_and_report_logo.png" alt="Zoom to GDF Extent and Report Logo" />
+
+    <h2>Running the Workflow</h2>
+    <p>Once all parameters are configured, submit the workflow. The runner will:</p>
+    <ol>
+      <li>Pull movement data from EarthRanger for the specified subject group and time range.</li>
+      <li>Filter trajectories using the segment filter settings.</li>
+      <li>Compute home ranges, speed rasters, and seasonal ranges using Google Earth Engine.</li>
+      <li>Generate all map visualizations and the Word mapbook.</li>
+      <li>Save all outputs to the directory specified by <code>ECOSCOPE_WORKFLOWS_RESULTS</code>.</li>
+    </ol>
+
+    <h2>Output Files</h2>
+    <p>All outputs are written to <code>$ECOSCOPE_WORKFLOWS_RESULTS/</code>:</p>
+    <table>
+      <thead><tr><th>File</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>trajectories.geoparquet</code></td><td>Current period trajectories</td></tr>
+        <tr><td><code>previous_period_trajectories.geoparquet</code></td><td>Previous period trajectories</td></tr>
+        <tr><td><code>relocations.geoparquet</code></td><td>Current period relocations</td></tr>
+        <tr><td><code>previous_period_relocations.geoparquet</code></td><td>Previous period relocations</td></tr>
+        <tr><td><code>*.geoparquet</code> (ETD, MCP, seasonal)</td><td>Home range polygons per subject</td></tr>
+        <tr><td><code>*_movement_tracks.html</code></td><td>Interactive movement tracks map per subject</td></tr>
+        <tr><td><code>*_speedmap.html</code></td><td>Interactive speed map per subject</td></tr>
+        <tr><td><code>*_day_night.html</code></td><td>Interactive day/night map per subject</td></tr>
+        <tr><td><code>*_homerange.html</code></td><td>Interactive home range map per subject</td></tr>
+        <tr><td><code>*_mean_speed_raster.html</code></td><td>Interactive mean speed raster per subject</td></tr>
+        <tr><td><code>*_seasonal_home_range.html</code></td><td>Interactive seasonal home range map per subject</td></tr>
+        <tr><td><code>mapbook_context_page.docx</code></td><td>Cover page document</td></tr>
+        <tr><td><code>*.docx</code> (per subject)</td><td>Individual subject report sections</td></tr>
+        <tr><td>Merged mapbook <code>.docx</code></td><td>Final combined Word report</td></tr>
+      </tbody>
+    </table>
+
+    <p>Something not working as expected? See <a href="troubleshooting.html">Troubleshooting</a>.</p>
+  </main>
+
+  <footer class="site-footer">
+    <p>STE Mapbook Workflow &middot; <a href="https://github.com/wildlife-dynamics/ste-mapbook">wildlife-dynamics/ste-mapbook</a> on GitHub</p>
+  </footer>
+</body>
+</html>
