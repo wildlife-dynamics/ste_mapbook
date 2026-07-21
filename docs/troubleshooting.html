@@ -28,12 +28,12 @@
 
     <div class="error-block">
       <p class="symptom">Subject Group returns no data / "no subjects found"</p>
-      <p>The <strong>Subject Group Name</strong> field is case-sensitive and must match the name in EarthRanger exactly (see <a href="user-guide.html#step-6">Step 6</a>). Double-check capitalization and spacing &mdash; e.g. <code>elephants</code> will not match a group named <code>Elephants</code>.</p>
+      <p>The <strong>Subject Group Name</strong> field is case-sensitive and must match the name in EarthRanger exactly (see <a href="user-guide.html#subject-group">Subject Group</a>). Double-check capitalization and spacing &mdash; e.g. <code>elephants</code> will not match a group named <code>Elephants</code>.</p>
     </div>
 
     <div class="error-block">
       <p class="symptom">EarthRanger connection fails or times out</p>
-      <p>Verify the server URL, username, and password configured in the EarthRanger connection (Step 3). Confirm you can log into that same EarthRanger instance directly in a browser with the same credentials, and that your account has API access to the subject group you're requesting.</p>
+      <p>Verify the server URL, username, and password configured in the EarthRanger connection (see <a href="user-guide.html#connections">Data Source Connections</a>). Confirm you can log into that same EarthRanger instance directly in a browser with the same credentials, and that your account has API access to the subject group you're requesting.</p>
     </div>
 
     <div class="error-block">
@@ -43,24 +43,39 @@
 
     <div class="error-block">
       <p class="symptom">landDx overlay doesn't load</p>
-      <p>By default the <code>landDx</code> geodatabase is downloaded from a Dropbox URL at runtime (Step 7). If the Dropbox link is unreachable (network restrictions, link expired), switch to <strong>Use local file</strong> and point to a local <code>.gpkg</code> copy, or supply your own URL.</p>
+      <p>By default the <code>landDx</code> geodatabase is downloaded from a Dropbox URL at runtime (see <a href="user-guide.html#map-overlay">Map Overlay</a>). If the Dropbox link is unreachable (network restrictions, link expired), switch to <strong>Use local file</strong> and point to a local <code>.gpkg</code> copy, or supply your own URL.</p>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom">Basemap tiles don't load, or the background map is blank</p>
+      <p>The <a href="user-guide.html#basemap">Basemap Layer</a> tile URL is user-editable. If you changed it away from the default ArcGIS Hillshade service, confirm the new tile URL follows the standard <code>{z}/{y}/{x}</code> template and is reachable from the machine running the workflow.</p>
     </div>
 
     <div class="error-block">
       <p class="symptom">Report logo doesn't appear on the cover page</p>
-      <p>Check that the logo URL is a direct link to a PNG or JPG (not an HTML page), or that the local file path is reachable from the machine running the workflow.</p>
+      <p>Check that the logo URL is a direct link to a PNG or JPG (not an HTML page), or that the local file path is reachable from the machine running the workflow. This field lives under <a href="user-guide.html#word-report">Generate Word Doc Report</a>.</p>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom">Mapbook <code>.docx</code> is generated without any map images</p>
+      <p>Check the <strong>Include Maps</strong> toggle under <a href="user-guide.html#word-report">Generate Word Doc Report</a> &mdash; if it's disabled, all six map types are skipped during PNG conversion and the report is produced text-only.</p>
     </div>
 
     <h2>Trajectories &amp; Map Outputs</h2>
 
     <div class="error-block">
       <p class="symptom">Movement Tracks / Speed / Home Range maps are empty or sparse for a subject</p>
-      <p>This is usually the <strong>Trajectory Segment Filter</strong> (Step 8) discarding most of the subject's data. If a subject moves unusually slowly or quickly, or has irregular fix intervals, the default Min/Max Speed and Min/Max Segment Duration thresholds may filter out nearly all segments. Loosen the bounds to match the study species' actual movement characteristics, then re-run.</p>
+      <p>This is usually the <a href="user-guide.html#trajectory-filter">Trajectory Segment Filter</a> discarding most of the subject's data. If a subject moves unusually slowly or quickly, or has irregular fix intervals, the default Min/Max Speed and Min/Max Segment Duration thresholds may filter out nearly all segments. Loosen the bounds to match the study species' actual movement characteristics, then re-run.</p>
     </div>
 
     <div class="error-block">
       <p class="symptom">Previous-period comparison is missing or looks wrong on the Movement Tracks map</p>
-      <p>Check the <strong>Previous Period</strong> selection in Step 5 &mdash; "Same as current period" mirrors the current window's length, while the calendar-based options (previous month/quarter/6 months/year) use fixed calendar boundaries rather than a rolling window. If you need a specific comparison window, use <strong>Enter start date</strong> instead.</p>
+      <p>Check the <a href="user-guide.html#previous-period">Previous Period</a> mode &mdash; <strong>Preset</strong>'s "Same as current period" mirrors the current window's length, while the other presets (previous month/3 months/6 months/year) use fixed calendar boundaries rather than a rolling window. If you need a specific comparison window, use <strong>Calendar</strong> to pick an exact start date, or <strong>Custom</strong> to enter your own Years/Months/Weeks/Days offset.</p>
+    </div>
+
+    <div class="error-block">
+      <p class="symptom">Mean Speed Raster is too coarse, too slow to generate, or unexpectedly large</p>
+      <p>The <a href="user-guide.html#mean-speed-raster">Step Length</a> field controls the raster's cell size. Smaller values (below the default 2000&nbsp;m) produce a more detailed but slower, larger raster; try <strong>Auto</strong> to let the workflow derive a step length from the average distance between consecutive GPS fixes instead.</p>
     </div>
 
     <div class="error-block">

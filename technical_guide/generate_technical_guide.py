@@ -137,7 +137,7 @@ def build():
         sp(8),
         hr(),
         p("Elephant Movescape Analysis — Methodology &amp; Calculation Reference", META),
-        p(f"Version 1.0  ·  Generated {date.today().strftime('%B %d, %Y')}", META),
+        p(f"Version 1.1  ·  Generated {date.today().strftime('%B %d, %Y')}", META),
         hr(),
         PageBreak(),
     ]
@@ -255,11 +255,13 @@ def build():
 
         sp(4), h2("2.5 Base Map Tile Layer"),
         p(
-            "Every map uses the <b>ArcGIS World Hillshade</b> tile service as the "
-            "background raster:"
+            "The background raster is set by the <b>Configure basemap layers</b> "
+            "step (<code>set_base_maps_pydeck</code>). It ships pre-filled with the "
+            "<b>ArcGIS World Hillshade</b> tile service, but the URL, opacity, and max "
+            "zoom are user-configurable rather than hard-coded:"
         ),
         code("https://server.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}"),
-        p("Opacity is set to 1.0 (fully opaque) with a max zoom of 20."),
+        p("Default opacity is 1.0 (fully opaque) with a max zoom of 20."),
     ]
 
     # ── 3. Data Ingestion ─────────────────────────────────────────────────────
@@ -532,7 +534,7 @@ def build():
         table(
             [
                 ["Parameter",          "Value",   "Effect"],
-                ["step_length",        "2 000 m", "Trajectories are resampled to 2 km steps before aggregation; this regularises the contribution of each segment regardless of fix rate"],
+                ["step_length",        "User-set (default 2 000 m, or Auto)", "Trajectories are resampled to this step length before aggregation, regularising the contribution of each segment regardless of fix rate. Choosing “Auto” uses the average distance between consecutive GPS fixes instead of a fixed value"],
                 ["movement_covariate", "speed",   "The metric being aggregated is speed (km/h)"],
                 ["interpolation",      "mean",    "Within each hex cell, values are averaged across all contributing steps"],
                 ["radius",             "2",       "Each hex cell also incorporates contributions from its 2-ring neighbourhood (smoothing)"],
@@ -540,8 +542,14 @@ def build():
                 ["cutoff",             "null",    "No hard cutoff on contributing distance"],
                 ["tortuosity_length",  "3",       "Path sinuosity is computed over 3-step windows"],
                 ["resolution",         "null",    "Hex cell size is auto-derived from data density"],
+                ["network_metric",     "null",    "Network-based movement metrics are not computed for this report"],
             ],
-            [3.8*cm, 2.8*cm, 9.9*cm],
+            [3.8*cm, 3.6*cm, 9.1*cm],
+        ),
+        note(
+            "Unlike the other ecograph parameters, <b>Step Length</b> is exposed as a "
+            "user-configurable field in the Mean Speed Raster step of the workflow form — "
+            "it is not fixed by the spec."
         ),
 
         h3("Classification and colouring"),
@@ -652,6 +660,13 @@ def build():
         p(
             "The final deliverable is a <b>multi-section Word document</b> "
             "assembled from a cover page and one section per subject."
+        ),
+
+        p(
+            "Both the report logo and an <b>Include Maps</b> toggle (default: enabled) "
+            "are configured under the <b>Generate Word Doc Report</b> step. Disabling "
+            "the toggle skips PNG conversion for all six interactive map types, so the "
+            "mapbook sections are generated without map images."
         ),
 
         h2("6.1 Cover Page"),
@@ -773,43 +788,55 @@ def build():
         h2("9.3 Previous Period Logic"),
         p(
             "The previous period is determined by "
-            "<code>determine_previous_period</code>. Options include:"
+            "<code>flexible_previous_period</code>. In every mode, the comparison "
+            "period's <b>End Date</b> is fixed to the current time range's Start Date "
+            "(so the two periods never overlap) — only the Start Date calculation "
+            "differs. There are three modes:"
         ),
         table(
             [
-                ["Option",               "Behaviour"],
-                ["Same as current period","Shifts the current period backwards by its own duration"],
-                ["Previous month",       "Calendar month immediately before the current period"],
-                ["Previous 3 months",    "Three calendar months before the current period start"],
-                ["Previous 6 months",    "Six calendar months before the current period start"],
-                ["Previous year",        "One calendar year before the current period start"],
-                ["Enter start date",     "User supplies an explicit start date; duration matches current period"],
+                ["Mode",     "Behaviour"],
+                ["Preset",   "Choose a common lookback — Same as current period, Previous month, Previous 3 months, Previous 6 months, or Previous year"],
+                ["Calendar", "Manually pick the exact Start Date for the comparison period"],
+                ["Custom",   "Enter a Years / Months / Weeks / Days offset to count backward from the current time range's start date (default: 1 month back)"],
             ],
-            [5*cm, 11.5*cm],
+            [4*cm, 12.5*cm],
         ),
         p(
-            "Default is <b>Same as current period</b>, which is the most common "
-            "use case for month-on-month comparisons."
+            "Default is the <b>Preset</b> mode with <b>Same as current period</b> "
+            "selected, which is the most common use case for month-on-month comparisons."
         ),
     ]
 
     # ── 10. Package Versions ──────────────────────────────────────────────────
     story += [
         sp(4), h1("10. Software Versions"), hr(),
+        p(
+            "As of the migration to the <b>ecoscope-platform</b> task/compiler runtime, "
+            "the workflow's requirements are:"
+        ),
         table(
             [
-                ["Package",                          "Version",   "Role"],
-                ["ecoscope-workflows-core",          "0.22.17.*", "Core task library and workflow engine"],
-                ["ecoscope-workflows-ext-ecoscope",  "0.22.17.*", "Ecoscope spatial analysis tasks (ETD, MCP, relocations)"],
-                ["ecoscope-workflows-ext-custom",    "0.0.56.*",  "Custom STE utility tasks"],
-                ["ecoscope-workflows-ext-big-life",  "0.0.8.*",   "Big Life Foundation domain tasks"],
-                ["ecoscope-workflows-ext-ste",       "0.0.22.*",  "STE-specific tasks (mapbook, seasonal analysis, map overlay)"],
+                ["Package",                       "Version",              "Role"],
+                ["ecoscope-platform",              ">=2.15.0, &lt;2.16.0", "Core task library and workflow engine (replaces ecoscope-workflows-core / -ext-ecoscope / -ext-big-life)"],
+                ["ecoscope-workflows-ext-custom",  "0.1.0rc14.*",          "Custom STE utility tasks"],
+                ["ecoscope-workflows-ext-ste",     "0.0.0rc1.*",           "STE-specific tasks (mapbook, seasonal analysis, map overlay)"],
+                ["pydeck",                         "0.9.2",                "Renders the interactive DeckGL maps"],
+                ["opentelemetry-sdk",              ">=1.20.0, &lt;2.0.0",  "Workflow run telemetry/observability instrumentation"],
             ],
-            [5.5*cm, 3*cm, 8*cm],
+            [5.5*cm, 4*cm, 7*cm],
+        ),
+        note(
+            "<code>ecoscope-workflows-ext-ecoscope</code> and "
+            "<code>ecoscope-workflows-ext-big-life</code> are no longer direct "
+            "dependencies — their task coverage now lives in <code>ecoscope-platform</code>."
         ),
         p(
-            "Packages are distributed via the <code>prefix.dev</code> conda channel "
-            "and pinned to patch-compatible versions (<code>.*</code> suffix). "
+            "<code>ecoscope-platform</code> is pulled from the "
+            "<code>ecoscope-workflows</code> prefix.dev channel; the two "
+            "<code>ecoscope-workflows-ext-*</code> packages from the "
+            "<code>ecoscope-workflows-custom</code> channel; <code>pydeck</code> and "
+            "<code>opentelemetry-sdk</code> from <code>conda-forge</code>. "
             "The runtime environment is managed by <b>pixi</b>."
         ),
     ]

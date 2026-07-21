@@ -15,8 +15,6 @@ Generates a multi-section mapbook report for wildlife tracking data sourced from
 | **Mapbook (.docx)** | Word document with a cover page and one section per subject |
 | **Dashboard** | Interactive widget dashboard with all maps and summary metrics |
 
----
-
 ## Requirements
 
 - Access to an **EarthRanger** instance with a configured data source
@@ -25,23 +23,47 @@ Generates a multi-section mapbook report for wildlife tracking data sourced from
 
 ---
 
-## Configuration Parameters
+## 1. Load the Workflow
 
-When running the workflow you will be prompted to fill in the following:
+In the workflow runner, add a new template using this repository's URL:
+
+```
+https://github.com/wildlife-dynamics/ste-mapbook.git
+```
+
+Once added, select **STE Mapbook Workflow** from the available templates list to load it.
+
+---
+
+## 2. Configure the Workflow
+
+You'll be prompted to fill in the following parameters before running.
 
 ### Workflow Details
+
 | Field | Description |
 |-------|-------------|
 | Workflow Name | A short name to identify this run |
 | Workflow Description | Optional description |
 
-### Define Analysis Time Range
+### Data Source Connections
+
+Both connections are required for the workflow to run.
+
+| Field | Description |
+|-------|-------------|
+| Connect to EarthRanger | Select (or create) the EarthRanger connection to pull observations from |
+| Connect to Earth Engine | Select the Google Earth Engine project used for seasonal analysis |
+
+### Analysis Time Range
+
 | Field | Description |
 |-------|-------------|
 | Since | Start date/time of the analysis period |
 | Until | End date/time of the analysis period |
 
-### Set Previous Period Range
+### Previous Period Range
+
 Defines the comparison period shown on the Movement Tracks map.
 
 | Option | Description |
@@ -53,27 +75,22 @@ Defines the comparison period shown on the Movement Tracks map.
 | Previous year | One calendar year before the current period |
 | Enter start date | Manually specify a start date for the previous period |
 
-### Data Sources
-| Field | Description |
-|-------|-------------|
-| Connect to EarthRanger | Select the EarthRanger data source to pull observations from |
-| Connect to Earth Engine | Select the Google Earth Engine project for seasonal analysis |
-
 ### Subject Group
+
 | Field | Description | Default |
 |-------|-------------|---------|
-| Subject Group Name | Name of the subject group in EarthRanger (case-sensitive) | `Elephants` |
+| Subject Group Name | Name of the subject group in EarthRanger (**case-sensitive**) | `Elephants` |
 
-### Load landDx Database
-The landDx geodatabase contains protected area boundaries (Community Conservancies, National Reserves, National Parks) used as base layers on all maps.
+### Map Overlay
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| Download from URL | Provide a URL to download the `.gpkg` file | Pre-filled Dropbox URL |
-| Use local file | Provide a path to a local `.gpkg` file | — |
+| LandDx | Protected area boundaries (Community Conservancies, National Reserves, National Parks), downloaded from a `.gpkg` URL or a local file | Pre-filled Dropbox URL |
+| EarthRanger Spatial Feature | Fetches a named spatial feature set directly from your connected EarthRanger instance | — |
 
 ### Trajectory Segment Filter
-Filters out GPS noise and unrealistic movements before trajectory analysis. The same filter is applied to both current and previous period trajectories.
+
+Filters out GPS noise and unrealistic movements before trajectory analysis. Applied to both current and previous period trajectories.
 
 | Field | Default | Description |
 |-------|---------|-------------|
@@ -84,13 +101,17 @@ Filters out GPS noise and unrealistic movements before trajectory analysis. The 
 | Minimum Speed (km/h) | `0.01` | Discard segments below this average speed |
 | Maximum Speed (km/h) | `9` | Discard segments above this average speed |
 
-### Zoom to gdf extent
+Adjust these to suit the movement characteristics of your study species — overly tight bounds can filter out most of a subject's data.
+
+### Zoom to GDF Extent
+
 | Field | Default | Description |
 |-------|---------|-------------|
 | Expansion Factor | `1.05` | Padding around the map boundary. `1.0` = tight fit, `1.2` = 20% padding |
 
 ### Report Logo
-The logo appears on the mapbook cover page.
+
+Appears on the mapbook cover page.
 
 | Option | Description |
 |--------|-------------|
@@ -99,9 +120,17 @@ The logo appears on the mapbook cover page.
 
 ---
 
-## Output Files
+## 3. Run the Workflow
 
-All outputs are written to the directory specified by `ECOSCOPE_WORKFLOWS_RESULTS`:
+Once all parameters are configured, submit the workflow. The runner will:
+
+1. Pull movement data from EarthRanger for the specified subject group and time range.
+2. Filter trajectories using the segment filter settings.
+3. Compute home ranges, speed rasters, and seasonal ranges using Google Earth Engine.
+4. Generate all map visualizations and the Word mapbook.
+5. Save all outputs to the directory specified by `ECOSCOPE_WORKFLOWS_RESULTS`.
+
+### Output Files
 
 | File | Description |
 |------|-------------|
@@ -121,3 +150,20 @@ All outputs are written to the directory specified by `ECOSCOPE_WORKFLOWS_RESULT
 | Merged mapbook `.docx` | Final combined Word report |
 
 ---
+
+## More Help
+
+- **Full documentation site:** [wildlife-dynamics.github.io/ste-mapbook](https://wildlife-dynamics.github.io/ste-mapbook/) — user guide, technical guide, and troubleshooting
+- **Issues:** [github.com/wildlife-dynamics/ste-mapbook/issues](https://github.com/wildlife-dynamics/ste-mapbook/issues)
+
+## Development
+
+This workflow's code (`ecoscope-workflows-mapbook-report-workflow/`) is generated from [`spec.yaml`](spec.yaml) and [`test-cases.yaml`](test-cases.yaml). After editing either file, recompile and commit the generated changes:
+
+```
+pixi run --manifest-path pixi.toml --locked bash -c "./dev/recompile.sh --update"
+```
+
+## License
+
+[BSD 3-Clause](LICENSE)
