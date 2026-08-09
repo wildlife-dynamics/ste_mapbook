@@ -42,6 +42,11 @@
     </div>
 
     <div class="error-block">
+      <p class="symptom"><code>Task instance 'determine_seasonal_windows' raised EEException('User memory limit exceeded.')</code></p>
+      <p>Google Earth Engine ran out of memory computing the NDVI phenology curve for the seasonal analysis step. This almost always happens when the <a href="user-guide.html#time-range">Analysis Time Range</a> (Since/Until) is too short &mdash; there isn't enough NDVI history for GEE to resolve wet/dry season windows in a single synchronous computation. Widen the analysis period to at least two to three months and re-run; a longer range gives Earth Engine more history to work with and avoids the memory ceiling.</p>
+    </div>
+
+    <div class="error-block">
       <p class="symptom">landDx overlay doesn't load</p>
       <p>By default the <code>landDx</code> geodatabase is downloaded from a Dropbox URL at runtime (see <a href="user-guide.html#map-overlay">Map Overlay</a>). If the Dropbox link is unreachable (network restrictions, link expired), switch to <strong>Use local file</strong> and point to a local <code>.gpkg</code> copy, or supply your own URL.</p>
     </div>

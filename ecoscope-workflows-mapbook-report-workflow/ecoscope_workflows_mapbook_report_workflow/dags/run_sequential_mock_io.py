@@ -410,6 +410,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             raise_on_empty=False,
             include_details=False,
             include_subjectsource_details=False,
+            include_subject_additional=False,
             **(params.get("subject_observations") or {}),
         )
         .call()
@@ -573,6 +574,7 @@ def main(params: dict[str, Any], validate_params_schema: bool = True):
             raise_on_empty=False,
             include_details=False,
             include_subjectsource_details=False,
+            include_subject_additional=False,
             **(params.get("previous_observations") or {}),
         )
         .call()

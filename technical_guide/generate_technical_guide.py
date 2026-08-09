@@ -137,7 +137,7 @@ def build():
         sp(8),
         hr(),
         p("Elephant Movescape Analysis — Methodology &amp; Calculation Reference", META),
-        p(f"Version 1.1  ·  Generated {date.today().strftime('%B %d, %Y')}", META),
+        p(f"Version 1.2  ·  Generated {date.today().strftime('%B %d, %Y')}", META),
         hr(),
         PageBreak(),
     ]
@@ -196,6 +196,13 @@ def build():
             "If the subject group name is wrong or the group contains no observations in "
             "the requested period, the workflow skips all downstream tasks gracefully via "
             "the <code>any_is_empty_df</code> skipif condition."
+        ),
+        p(
+            "An advanced <b>Include Subject Additional</b> toggle (default: disabled) is "
+            "exposed on both the current-period and previous-period observation fetch "
+            "tasks. When enabled, each subject's free-form <code>additional</code> JSON "
+            "field from EarthRanger is retained in the fetched observations rather than "
+            "discarded."
         ),
 
         sp(4), h2("2.3 Google Earth Engine Project"),
@@ -599,6 +606,13 @@ def build():
             "fixed calendar dates. This is critical in East African ecosystems where "
             "rainfall timing can vary considerably year to year."
         ),
+        note(
+            "A short analysis period can cause <code>determine_seasonal_windows</code> "
+            "to fail with <code>EEException('User memory limit exceeded.')</code> — "
+            "there isn't enough NDVI history for Earth Engine to resolve season windows "
+            "in one synchronous computation. Widen the workflow's Since/Until range to "
+            "at least two to three months and re-run."
+        ),
 
         h3("Season labelling on trajectories"),
         p(
@@ -818,7 +832,7 @@ def build():
         table(
             [
                 ["Package",                       "Version",              "Role"],
-                ["ecoscope-platform",              ">=2.15.0, &lt;2.16.0", "Core task library and workflow engine (replaces ecoscope-workflows-core / -ext-ecoscope / -ext-big-life)"],
+                ["ecoscope-platform",              "2.18.0",               "Core task library and workflow engine (replaces ecoscope-workflows-core / -ext-ecoscope / -ext-big-life)"],
                 ["ecoscope-workflows-ext-custom",  "0.1.0rc14.*",          "Custom STE utility tasks"],
                 ["ecoscope-workflows-ext-ste",     "0.0.0rc1.*",           "STE-specific tasks (mapbook, seasonal analysis, map overlay)"],
                 ["pydeck",                         "0.9.2",                "Renders the interactive DeckGL maps"],
