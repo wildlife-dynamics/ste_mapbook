@@ -55,6 +55,16 @@ Both connections are required for the workflow to run.
 | Connect to EarthRanger | Select (or create) the EarthRanger connection to pull observations from |
 | Connect to Earth Engine | Select the Google Earth Engine project used for seasonal analysis |
 
+### Basemap Layer
+
+The **Configure basemap layers** step sets the background tile layer shared by all six maps. It's pre-filled with a sensible default, but the URL, opacity, and max zoom are editable if you want a different base layer.
+
+| Field | Default |
+|-------|---------|
+| Tile URL | `ArcGIS World Hillshade` |
+| Opacity | `1.0` (fully opaque) |
+| Max Zoom | `20` |
+
 ### Analysis Time Range
 
 | Field | Description |
@@ -62,24 +72,26 @@ Both connections are required for the workflow to run.
 | Since | Start date/time of the analysis period |
 | Until | End date/time of the analysis period |
 
+> **Note:** Very short analysis periods (a few days or weeks) can cause the seasonal analysis step to fail with a Google Earth Engine `User memory limit exceeded` error. If you hit this, widen the **Since**/**Until** range — a window of two to three months or more gives Earth Engine enough NDVI history to compute season windows reliably.
+
 ### Previous Period Range
 
-Defines the comparison period shown on the Movement Tracks map.
+Defines the comparison period shown on the Movement Tracks map. In every mode, the comparison period's **end date** is fixed to your time range's start date (so the two periods never overlap) — only the start date calculation changes. Choose one of three modes:
 
-| Option | Description |
-|--------|-------------|
-| Same as current period | Mirror the current period length ending at the current start |
-| Previous month | Calendar month before the current period |
-| Previous 3 months | Three calendar months before the current period |
-| Previous 6 months | Six calendar months before the current period |
-| Previous year | One calendar year before the current period |
-| Enter start date | Manually specify a start date for the previous period |
+| Mode | Description |
+|------|-------------|
+| **Preset** | Pick a common lookback: Same as current period, Previous month, Previous 3 months, Previous 6 months, or Previous year |
+| **Calendar** | Manually pick the exact start date for the comparison period |
+| **Custom** | Enter a Years / Months / Weeks / Days offset to count backward from your time range's start date (default: 1 month back) |
+
+Default is **Preset → Same as current period**.
 
 ### Subject Group
 
 | Field | Description | Default |
 |-------|-------------|---------|
 | Subject Group Name | Name of the subject group in EarthRanger (**case-sensitive**) | `Elephants` |
+| Include Subject Additional *(advanced)* | Whether to include the subject's free-form `additional` JSON metadata from EarthRanger. Applied to both the current and previous period observation fetches | `false` |
 
 ### Map Overlay
 
@@ -103,20 +115,26 @@ Filters out GPS noise and unrealistic movements before trajectory analysis. Appl
 
 Adjust these to suit the movement characteristics of your study species — overly tight bounds can filter out most of a subject's data.
 
+### Mean Speed Raster
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| Step Length (m) | `2000`, or **Auto** | Cell size of the mean speed raster. Smaller values are more detailed but slower and larger; **Auto** uses the average distance between consecutive GPS fixes instead of a fixed value |
+
 ### Zoom to GDF Extent
 
 | Field | Default | Description |
 |-------|---------|-------------|
 | Expansion Factor | `1.05` | Padding around the map boundary. `1.0` = tight fit, `1.2` = 20% padding |
 
-### Report Logo
+### Generate Word Doc Report
 
-Appears on the mapbook cover page.
+Controls the mapbook `.docx` output.
 
-| Option | Description |
-|--------|-------------|
-| Download from URL | Provide a URL to a PNG or JPG logo |
-| Use local file | Provide a path to a local image file |
+| Field | Default | Description |
+|-------|---------|-------------|
+| Include Maps | Enabled | When enabled, all six interactive maps are converted to images and embedded in each subject's report section. Disabling it skips image generation and produces the report without map images |
+| Report Logo | — | Appears on the mapbook cover page. Provide a URL to a PNG/JPG to download it automatically, or a local file path |
 
 ---
 

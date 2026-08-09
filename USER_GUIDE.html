@@ -27,6 +27,8 @@
     td { padding: 9px 14px; border-bottom: 1px solid #d8e8d8; }
     tr:nth-child(even) td { background: #f0f7f0; }
     hr { border: none; border-top: 1px solid #d8e8d8; margin: 2em 0; }
+    blockquote { border-left: 4px solid #e7a553; background: #fff8e1; margin: 16px 0; padding: 10px 16px; border-radius: 4px; }
+    blockquote p { margin: 0; }
   </style>
 </head>
 <body>
@@ -70,6 +72,16 @@
 <tr><td>Connect to Earth Engine</td><td>Select the Google Earth Engine project used for seasonal analysis</td></tr>
 </tbody>
 </table>
+<h3 id="basemap-layer">Basemap Layer</h3>
+<p>The <strong>Configure basemap layers</strong> step sets the background tile layer shared by all six maps. It's pre-filled with a sensible default, but the URL, opacity, and max zoom are editable if you want a different base layer.</p>
+<table>
+<thead><tr><th>Field</th><th>Default</th></tr></thead>
+<tbody>
+<tr><td>Tile URL</td><td><code>ArcGIS World Hillshade</code></td></tr>
+<tr><td>Opacity</td><td><code>1.0</code> (fully opaque)</td></tr>
+<tr><td>Max Zoom</td><td><code>20</code></td></tr>
+</tbody>
+</table>
 <h3 id="analysis-time-range">Analysis Time Range</h3>
 <table>
 <thead><tr><th>Field</th><th>Description</th></tr></thead>
@@ -78,24 +90,26 @@
 <tr><td>Until</td><td>End date/time of the analysis period</td></tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>Note:</strong> Very short analysis periods (a few days or weeks) can cause the seasonal analysis step to fail with a Google Earth Engine <code>User memory limit exceeded</code> error. If you hit this, widen the <strong>Since</strong>/<strong>Until</strong> range — a window of two to three months or more gives Earth Engine enough NDVI history to compute season windows reliably.</p>
+</blockquote>
 <h3 id="previous-period-range">Previous Period Range</h3>
-<p>Defines the comparison period shown on the Movement Tracks map.</p>
+<p>Defines the comparison period shown on the Movement Tracks map. In every mode, the comparison period's <strong>end date</strong> is fixed to your time range's start date (so the two periods never overlap) — only the start date calculation changes. Choose one of three modes:</p>
 <table>
-<thead><tr><th>Option</th><th>Description</th></tr></thead>
+<thead><tr><th>Mode</th><th>Description</th></tr></thead>
 <tbody>
-<tr><td>Same as current period</td><td>Mirrors the current period length, ending at the current start date</td></tr>
-<tr><td>Previous month</td><td>Calendar month before the current period</td></tr>
-<tr><td>Previous 3 months</td><td>Three calendar months before the current period</td></tr>
-<tr><td>Previous 6 months</td><td>Six calendar months before the current period</td></tr>
-<tr><td>Previous year</td><td>One calendar year before the current period</td></tr>
-<tr><td>Enter start date</td><td>Manually specify a start date for the previous period</td></tr>
+<tr><td><strong>Preset</strong></td><td>Pick a common lookback: Same as current period, Previous month, Previous 3 months, Previous 6 months, or Previous year</td></tr>
+<tr><td><strong>Calendar</strong></td><td>Manually pick the exact start date for the comparison period</td></tr>
+<tr><td><strong>Custom</strong></td><td>Enter a Years / Months / Weeks / Days offset to count backward from your time range's start date (default: 1 month back)</td></tr>
 </tbody>
 </table>
+<p>Default is <strong>Preset → Same as current period</strong>.</p>
 <h3 id="subject-group">Subject Group</h3>
 <table>
 <thead><tr><th>Field</th><th>Description</th><th>Default</th></tr></thead>
 <tbody>
 <tr><td>Subject Group Name</td><td>Name of the subject group in EarthRanger (<strong>case-sensitive</strong>)</td><td><code>Elephants</code></td></tr>
+<tr><td>Include Subject Additional <em>(advanced)</em></td><td>Whether to include the subject's free-form <code>additional</code> JSON metadata from EarthRanger. Applied to both the current and previous period observation fetches</td><td><code>false</code></td></tr>
 </tbody>
 </table>
 <h3 id="map-overlay">Map Overlay</h3>
@@ -122,6 +136,13 @@
 </tbody>
 </table>
 <p>Adjust these values to suit the movement characteristics of your study species — overly tight bounds can filter out most of a subject's data.</p>
+<h3 id="mean-speed-raster">Mean Speed Raster</h3>
+<table>
+<thead><tr><th>Field</th><th>Default</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>Step Length (m)</td><td><code>2000</code>, or <strong>Auto</strong></td><td>Cell size of the mean speed raster. Smaller values are more detailed but slower and larger; <strong>Auto</strong> uses the average distance between consecutive GPS fixes instead of a fixed value</td></tr>
+</tbody>
+</table>
 <h3 id="zoom-to-gdf-extent">Zoom to GDF Extent</h3>
 <table>
 <thead><tr><th>Field</th><th>Default</th><th>Description</th></tr></thead>
@@ -129,13 +150,13 @@
 <tr><td>Expansion Factor</td><td><code>1.05</code></td><td>Padding around the map boundary. <code>1.0</code> = tight fit, <code>1.2</code> = 20% padding</td></tr>
 </tbody>
 </table>
-<h3 id="report-logo">Report Logo</h3>
-<p>Appears on the mapbook cover page.</p>
+<h3 id="generate-word-doc-report">Generate Word Doc Report</h3>
+<p>Controls the mapbook <code>.docx</code> output.</p>
 <table>
-<thead><tr><th>Option</th><th>Description</th></tr></thead>
+<thead><tr><th>Field</th><th>Default</th><th>Description</th></tr></thead>
 <tbody>
-<tr><td>Download from URL</td><td>Provide a URL to a PNG or JPG logo</td></tr>
-<tr><td>Use local file</td><td>Provide a path to a local image file</td></tr>
+<tr><td>Include Maps</td><td>Enabled</td><td>When enabled, all six interactive maps are converted to images and embedded in each subject's report section. Disabling it skips image generation and produces the report without map images</td></tr>
+<tr><td>Report Logo</td><td>—</td><td>Appears on the mapbook cover page. Provide a URL to a PNG/JPG to download it automatically, or a local file path</td></tr>
 </tbody>
 </table>
 <hr />

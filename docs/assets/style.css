@@ -204,6 +204,15 @@ hr {
   color: var(--green-dark);
 }
 
+p.note {
+  border-left: 4px solid var(--amber);
+  background: #fff8e1;
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 16px 0;
+  font-size: 0.95em;
+}
+
 footer.site-footer {
   max-width: 860px;
   margin: 0 auto;

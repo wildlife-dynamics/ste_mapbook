@@ -1,22 +1,16 @@
 # STE Mapbook Workflow — User Guide
 
-This guide walks you through configuring and running the STE Mapbook Workflow, which generates a multi-section mapbook report for wildlife tracking data sourced from EarthRanger and Google Earth Engine.
+This guide walks you through loading, configuring, and running the STE Mapbook Workflow, which generates a multi-section mapbook report for wildlife tracking data sourced from EarthRanger and Google Earth Engine.
 
 ---
 
-## Overview
-
-The workflow produces, for each tracked subject:
+## What it produces
 
 - Six interactive map visualizations (movement tracks, speed, day/night, home range, mean speed raster, seasonal home range)
 - A Word document mapbook (`.docx`) with a cover page and one section per subject
 - An interactive widget dashboard
 
----
-
-## Prerequisites
-
-Before running the workflow, ensure you have:
+## Requirements
 
 - Access to an **EarthRanger** instance with a configured data source
 - Access to a **Google Earth Engine** project
@@ -24,99 +18,90 @@ Before running the workflow, ensure you have:
 
 ---
 
-## Step-by-Step Configuration
+## 1. Load the Workflow
 
-### Step 1 — Add the Workflow Template
-
-In the workflow runner, add a new template using the following GitHub repository URL:
+In the workflow runner, add a new template using this repository's URL:
 
 ```
-https://github.com/wildlife-dynamics/ste_mapbook.git
+https://github.com/wildlife-dynamics/ste-mapbook.git
 ```
 
-![Add Template](data/screenshots/add_template.png)
+Once added, select **STE Mapbook Workflow** from the available templates list to load it.
 
 ---
 
-### Step 2 — Select the Template
+## 2. Configure the Workflow
 
-After adding the template, select it from the available templates list to load the STE Mapbook workflow.
+You'll be prompted to fill in the following parameters before running.
 
-![Select Template](data/screenshots/select_template.png)
+### Workflow Details
 
----
+| Field | Description |
+|-------|-------------|
+| Workflow Name | A short name to identify this run |
+| Workflow Description | Optional description |
 
-### Step 3 — Configure Connections
+### Data Source Connections
 
-Both an **EarthRanger** connection and a **Google Earth Engine** connection are required for the workflow to run. Configure these before proceeding to the workflow parameters.
+Both an **EarthRanger** connection and a **Google Earth Engine** connection are required for the workflow to run.
 
-![Configure Connection](data/screenshots/configure_connection.png)
+| Field | Description |
+|-------|-------------|
+| Connect to EarthRanger | Select (or create) the EarthRanger connection to pull observations from |
+| Connect to Earth Engine | Select the Google Earth Engine project used for seasonal analysis |
 
-#### Configure EarthRanger Connection
+### Basemap Layer
 
-Enter your EarthRanger server URL and authentication credentials to establish the EarthRanger data connection.
+The **Configure basemap layers** step sets the background tile layer shared by all six maps. It's pre-filled with a sensible default, but the URL, opacity, and max zoom are editable if you want a different base layer.
 
-![EarthRanger Connection](data/screenshots/er_connection.png)
+| Field | Default |
+|-------|---------|
+| Tile URL | `ArcGIS World Hillshade` |
+| Opacity | `1.0` (fully opaque) |
+| Max Zoom | `20` |
 
-#### Configure Google Earth Engine Connection
+### Analysis Time Range
 
-Enter your Google Earth Engine project name to establish the GEE connection used for seasonal analysis.
+| Field | Description |
+|-------|-------------|
+| Since | Start date/time of the analysis period |
+| Until | End date/time of the analysis period |
 
-![Earth Engine Connection](data/screenshots/gee_connection.png)
+> **Note:** Very short analysis periods (a few days or weeks) can cause the seasonal analysis step to fail with a Google Earth Engine `User memory limit exceeded` error. If you hit this, widen the **Since**/**Until** range — a window of two to three months or more gives Earth Engine enough NDVI history to compute season windows reliably.
 
----
+### Previous Period Range
 
-### Step 4 — Set the Workflow Time Range
+Defines the comparison period shown on the Movement Tracks map. In every mode, the comparison period's **end date** is fixed to your time range's start date (so the two periods never overlap) — only the start date calculation changes. Choose one of three modes:
 
-Define the analysis period by setting the **Since** (start) and **Until** (end) dates. All movement data, trajectories, and home ranges will be computed within this window.
+| Mode | Description |
+|------|-------------|
+| **Preset** | Pick a common lookback: Same as current period, Previous month, Previous 3 months, Previous 6 months, or Previous year |
+| **Calendar** | Manually pick the exact start date for the comparison period |
+| **Custom** | Enter a Years / Months / Weeks / Days offset to count backward from your time range's start date (default: 1 month back) |
 
-![Workflow Time Configuration](data/screenshots/workflow_time_config.png)
+Default is **Preset → Same as current period**.
 
----
+### Subject Group
 
-### Step 5 — Set the Previous Period and Connection
+| Field | Description | Default |
+|-------|-------------|---------|
+| Subject Group Name | Name of the subject group in EarthRanger (**case-sensitive**) | `Elephants` |
+| Include Subject Additional *(advanced)* | Whether to include the subject's free-form `additional` JSON metadata from EarthRanger. Applied to both the current and previous period observation fetches | `false` |
 
-Select a **previous period** to use as a comparison baseline on the Movement Tracks map, and confirm the active data connections.
+### Map Overlay
 
-| Option | Description |
-|--------|-------------|
-| Same as current period | Mirrors the current period length, ending at the current start date |
-| Previous month | Calendar month before the current period |
-| Previous 3 months | Three calendar months before the current period |
-| Previous 6 months | Six calendar months before the current period |
-| Previous year | One calendar year before the current period |
-| Enter start date | Manually specify a start date for the previous period |
+Choose the overlay layer to display on all maps.
 
-![Previous Period and Connection](data/screenshots/previous_period_and_connection.png)
+| Option | Description | Default |
+|--------|-------------|---------|
+| **LandDx** | Protected area boundaries (community conservancies, national reserves, national parks), downloaded from a `.gpkg` URL or a local file | Pre-filled Dropbox URL |
+| **EarthRanger Spatial Feature** | Fetches a named spatial feature set directly from your connected EarthRanger instance | — |
 
----
+By default, **LandDx** is pre-selected with the download URL filled in — no action required unless you want to use an EarthRanger spatial feature instead.
 
-### Step 6 — Select Subject Group
+### Trajectory Segment Filter
 
-Enter the **Subject Group Name** exactly as it appears in EarthRanger (case-sensitive). The default value is `Elephants`.
-
-![Subject Group](data/screenshots/subject_group_landdx.png)
-
----
-
-### Step 7 — Configure Map Overlay
-
-Choose the overlay layer to display on all maps. Two options are available:
-
-| Option | Description |
-|--------|-------------|
-| **LandDx** | Standard protected area boundaries (community conservancies, national reserves, national parks) downloaded automatically from the provided Dropbox URL — no local copy required |
-| **EarthRanger Spatial Feature** | Fetches a named spatial feature set directly from your connected EarthRanger instance |
-
-By default, the **LandDx** option is pre-selected and the download URL is filled in — no action is required unless you want to use an EarthRanger spatial feature instead.
-
-![Map Overlay](data/screenshots/map_overlay.png)
-
----
-
-### Step 8 — Configure Trajectory Segment Filter
-
-These filters remove GPS noise and unrealistic movements before trajectory analysis. The same filter is applied to both the current and previous period trajectories.
+Removes GPS noise and unrealistic movements before trajectory analysis. Applied to both current and previous period trajectories.
 
 | Field | Default | Description |
 |-------|---------|-------------|
@@ -127,30 +112,32 @@ These filters remove GPS noise and unrealistic movements before trajectory analy
 | Minimum Speed (km/h) | `0.01` | Discard segments below this average speed |
 | Maximum Speed (km/h) | `9` | Discard segments above this average speed |
 
-Adjust these values to suit the movement characteristics of your study species.
+Adjust these values to suit the movement characteristics of your study species — overly tight bounds can filter out most of a subject's data.
 
-![Configure Trajectory Segment Filter](data/screenshots/configure_trajectory_filter.png)
+### Mean Speed Raster
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| Step Length (m) | `2000`, or **Auto** | Cell size of the mean speed raster. Smaller values are more detailed but slower and larger; **Auto** uses the average distance between consecutive GPS fixes instead of a fixed value |
+
+### Zoom to GDF Extent
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| Expansion Factor | `1.05` | Padding around the map boundary. `1.0` = tight fit, `1.2` = 20% padding |
+
+### Generate Word Doc Report
+
+Controls the mapbook `.docx` output.
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| Include Maps | Enabled | When enabled, all six interactive maps are converted to images and embedded in each subject's report section. Disabling it skips image generation and produces the report without map images |
+| Report Logo | — | Appears on the mapbook cover page. Provide a URL to a PNG/JPG to download it automatically, or a local file path |
 
 ---
 
-### Step 9 — Zoom to GDF Extent and Report Logo
-
-**Zoom to GDF Extent**
-
-Set the **Expansion Factor** to control the map padding around the data boundary. A value of `1.0` gives a tight fit; `1.05` (default) adds 5% padding; `1.2` adds 20% padding.
-
-**Report Logo**
-
-The logo appears on the mapbook cover page. You can either:
-
-- Provide a **URL** to a PNG or JPG image to download it automatically.
-- Provide a **local file path** to an image on your machine.
-
-![Zoom to GDF Extent and Report Logo](data/screenshots/zoom_and_report_logo.png)
-
----
-
-## Running the Workflow
+## 3. Run the Workflow
 
 Once all parameters are configured, submit the workflow. The runner will:
 
@@ -160,9 +147,7 @@ Once all parameters are configured, submit the workflow. The runner will:
 4. Generate all map visualizations and the Word mapbook.
 5. Save all outputs to the directory specified by `ECOSCOPE_WORKFLOWS_RESULTS`.
 
----
-
-## Output Files
+### Output Files
 
 All outputs are written to `$ECOSCOPE_WORKFLOWS_RESULTS/`:
 
@@ -177,8 +162,15 @@ All outputs are written to `$ECOSCOPE_WORKFLOWS_RESULTS/`:
 | `*_speedmap.html` | Interactive speed map per subject |
 | `*_day_night.html` | Interactive day/night map per subject |
 | `*_homerange.html` | Interactive home range map per subject |
-| `*_mean_speed_raster.html` | Interactive mean speed raster per subject |
-| `*_seasonal_home_range.html` | Interactive seasonal home range per subject |
+| `*_mean_speed_raster.html` | Interactive mean speed raster map per subject |
+| `*_seasonal_home_range.html` | Interactive seasonal home range map per subject |
 | `mapbook_context_page.docx` | Cover page document |
 | `*.docx` (per subject) | Individual subject report sections |
 | Merged mapbook `.docx` | Final combined Word report |
+
+---
+
+## More Help
+
+- **Full documentation site:** [wildlife-dynamics.github.io/ste-mapbook](https://wildlife-dynamics.github.io/ste-mapbook/) — user guide, technical guide, and troubleshooting
+- **Issues:** [github.com/wildlife-dynamics/ste-mapbook/issues](https://github.com/wildlife-dynamics/ste-mapbook/issues)

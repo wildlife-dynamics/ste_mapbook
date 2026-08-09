@@ -1,7 +1,7 @@
 id: mapbook_report 
 requirements:
   - name: ecoscope-platform
-    version: ">=2.15.0, <2.16.0"
+    version: "2.18.0"
     channel: https://repo.prefix.dev/ecoscope-workflows/
 
   - name: ecoscope-workflows-ext-custom
@@ -193,6 +193,7 @@ workflow:
       raise_on_empty: false 
       include_details: false 
       include_subjectsource_details: false 
+      include_subject_additional: false
 
   - name: Convert relocs to timezone
     id: convert_relocs_timezone
@@ -270,6 +271,7 @@ workflow:
       raise_on_empty: false 
       include_details: false 
       include_subjectsource_details: false
+      include_subject_additional: false
   
   - name: Convert previous relocs to timezone
     id: convert_prev_timezone

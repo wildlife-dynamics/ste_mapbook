@@ -84,6 +84,7 @@
         <tr><td>Until</td><td>End date/time of the analysis period</td></tr>
       </tbody>
     </table>
+    <p class="note">Very short analysis periods (a few days or weeks) can cause the seasonal analysis step to fail with a Google Earth Engine <code>User memory limit exceeded</code> error. If you hit this, widen the Since/Until range &mdash; a window of two to three months or more gives Earth Engine enough NDVI history to compute season windows reliably. See <a href="troubleshooting.html">Troubleshooting</a>.</p>
 
     <h3 id="previous-period">Previous Period Range</h3>
     <p>Defines the comparison period shown on the Movement Tracks map. In every mode, the comparison period's <strong>end date</strong> is fixed to your time range's start date (so the two periods never overlap) &mdash; only the start date calculation changes. Choose one of three modes:</p>
@@ -102,6 +103,7 @@
       <thead><tr><th>Field</th><th>Description</th><th>Default</th></tr></thead>
       <tbody>
         <tr><td>Subject Group Name</td><td>Name of the subject group in EarthRanger (<strong>case-sensitive</strong>)</td><td><code>Elephants</code></td></tr>
+        <tr><td>Include Subject Additional <em>(advanced)</em></td><td>Whether to include the subject's free-form <code>additional</code> JSON metadata from EarthRanger. Applied to both the current and previous period observation fetches</td><td><code>false</code></td></tr>
       </tbody>
     </table>
 
